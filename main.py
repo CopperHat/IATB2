@@ -1,103 +1,107 @@
 import sys
 
 import pygame as pg
-from pygame.locals import *
-
-from Boton import Boton
-from Cursor import Cursor
-from maze import Maze, Cell
 
 pg.init()
 
 s_width = 800
 s_height = 600
 win = pg.display.set_mode((s_width, s_height), 0, 32)
-pg.display.set_caption('TB!')
-play_width = 200  # 200 / 4 = 50 width per block
-play_height = 200  # 200 / 4 = 50 height per block
-block_size = 50
+pg.display.set_caption('Inteligencia Artificial - Trabajo 2')
 
-top_left_x = (s_width - play_width) // 2
-top_left_y = 100
+# Tamaño de cada Casilla
+size_cell = 50
 
-# Cells de 2 walls
-es = pg.image.load("CELLS/2_Walls/ES.png")
-ne = pg.image.load("CELLS/2_Walls/NE.png")
-ns = pg.image.load("CELLS/2_Walls/NS.png")
-nw = pg.image.load("CELLS/2_Walls/NW.png")
-we = pg.image.load("CELLS/2_Walls/WE.png")
-ws = pg.image.load("CELLS/2_Walls/WE.png")
+# Posicion del Laberinto
+posLabX = 200
+posLabY = 150
 
-# Cells de 3 walls
-nes = pg.image.load("CELLS/3_Walls/NES.png")
-nwe = pg.image.load("CELLS/3_Walls/NWE.png")
-nws = pg.image.load("CELLS/3_Walls/NWS.png")
-wes = pg.image.load("CELLS/3_Walls/WES.png")
+# Posicion del Raton
+posRatX = 210
+posRatY = 160
 
+# Posicion del Queso
+posCheX = 200
+posCheY = 150
+# Posicion del queso en Casilla
+cheseX = 6
+cheseY = 6
 
-def make_maze(nx, ny):
-    # Maze entry position
-    ix, iy = 0, 0
+# Cargar Imagenes
+mouse = pg.image.load("IMG/mouse.png")
+chese = pg.image.load("IMG/cheese.png")
 
-    maze = Maze(nx, ny, ix, iy)
-    maze.make_maze()
-    return maze
+# Matriz de 7x7 para Laberinto
+maze_array = [[1, 0, 1, 1, 1, 1, 0],
+              [1, 1, 1, 0, 0, 1, 0],
+              [0, 0, 0, 0, 1, 1, 0],
+              [1, 1, 1, 1, 1, 0, 0],
+              [1, 0, 0, 0, 0, 0, 1],
+              [1, 0, 1, 1, 1, 1, 1],
+              [1, 1, 1, 0, 1, 1, 1]
+              ]
 
+def draw_text(text, size, pos_x, pos_y, surface):
+    font = pg.font.SysFont('comicsans', size)
+    label = font.render(text, 1, (255, 255, 255))
+    surface.blit(label, (pos_x, pos_y))
 
-def draw_text(text, font, color, surface, x, y):
-    textobj = font.render(text, 1, color)
-    textrect = textobj.get_rect()
-    textrect.topleft = (x, y)
-    surface.blit(textobj, textrect)
-
-
-def draw_cell(surface, cell, x, y):
-    #                (N, S, E, W)
-    if cell.walls == (0, 1, 1, 0):
-        pg.blit(es, (x, y))
-    if cell.walls == (1, 0, 1, 0):
-        pg.blit(ne, (x, y))
-    if cell.walls == (1, 1, 0, 0):
-        pg.blit(ns, (x, y))
-    if cell.walls == (1, 0, 0, 1):
-        pg.blit(nw, (x, y))
-    if cell.walls == (0, 0, 1, 1):
-        pg.blit(we, (x, y))
-    if cell.walls == (0, 1, 0, 1):
-        pg.blit(ws, (x, y))
-    if cell.walls == (1, 1, 1, 0):
-        pg.blit(nes, (x, y))
-    if cell.walls == (1, 0, 1, 1):
-        pg.blit(nwe, (x, y))
-    if cell.walls == (1, 1, 0, 1):
-        pg.blit(nws, (x, y))
-    if cell.walls == (0, 1, 1, 1):
-        pg.blit(wes, (x, y))
+def draw_mouse(surface, x, y):
+    surface.blit(mouse, (posRatX + size_cell * x, posRatY + size_cell * y))
 
     pg.display.update()
 
-
-def draw_maze(surface, maze):
-    for i in range(len(maze.ny)):
-        y = 30 + 30 * i
-        for j in range(len(maze.nx)):
-            x = 30 + 30 * j
-            draw_cell(surface, maze[i][j], x, y)
+def draw_chesse(surface, x, y):
+    surface.blit(chese, (posCheX + size_cell * x, posCheY + size_cell * y))
     pg.display.update()
 
+def draw_maze(surface):
+    # Dibujar Fondo del Laberinto
+    pg.draw.rect(surface, (0, 0, 0),
+                 (posLabX, posLabY, len(maze_array) * size_cell,
+                  len(maze_array) * size_cell))
+    # Dibujar Laberinto
+    for i in range(len(maze_array)):
+        y = size_cell * i
+        for j in range(len(maze_array)):
+            x = size_cell * j
+            if maze_array[i][j]:
+                pg.draw.rect(surface, (255, 255, 255),
+                             (x + posLabX, y + posLabY, size_cell, size_cell))
+    pg.display.update()
 
-def main():
-    run = True
-    victory = True
-    # Maze dimensions (ncols, nrows)
-    maze = make_maze(10, 5)
+def update_surface(surface, mouseX, mouseY):
+    draw_text('Trabajo 2', 100, 200, 50, surface)
+    draw_maze(surface)
+    draw_chesse(surface, cheseX, cheseY)
+    draw_mouse(surface, mouseX, mouseY)
+    pg.display.update()
 
-    while run:
-        win.fill((250, 173, 91))
-        draw_maze(win, maze)
-
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                run = False
-                pg.quit()
-                sys.exit()
+run = True
+victory = True
+# Maze dimensions (ncols, nrows)
+win.fill((150, 10, 100))
+# Posicion inicial de la Rata
+mouseX = 0
+mouseY = 0
+update_surface(win, mouseX, mouseY)
+while run:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            run = False
+            pg.quit()
+            sys.exit()
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_LEFT:
+                mouseX = mouseX - 1
+                update_surface(win, mouseX, mouseY)
+            if event.key == pg.K_UP:
+                mouseY = mouseY - 1
+                update_surface(win, mouseX, mouseY)
+            if event.key == pg.K_RIGHT:
+                mouseX = mouseX + 1
+                update_surface(win, mouseX, mouseY)
+            if event.key == pg.K_DOWN:
+                mouseY = mouseY + 1
+                update_surface(win, mouseX, mouseY)
+pg.quit()
