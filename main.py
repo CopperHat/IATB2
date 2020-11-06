@@ -2,11 +2,19 @@ import sys
 
 import pygame as pg
 
+from mouse import Mouse
+
 pg.init()
 
-s_width = 800
-s_height = 600
+# Cargar Imagenes
+upcpng = pg.image.load("IMG/UPC.png")
+mousepng = pg.image.load("IMG/mouse.png")
+cheesepng = pg.image.load("IMG/cheese.png")
+
+s_width = 766
+s_height = 610
 win = pg.display.set_mode((s_width, s_height), 0, 32)
+pg.display.set_icon(upcpng)
 pg.display.set_caption('Inteligencia Artificial - Trabajo 2')
 
 # Tamaño de cada Casilla
@@ -14,7 +22,7 @@ size_cell = 50
 
 # Posicion del Laberinto
 posLabX = 10
-posLabY = 150
+posLabY = 100
 
 # Posicion del Raton
 posRatX = posLabX + 10
@@ -27,21 +35,21 @@ mouseY = 0
 posCheX = posRatX
 posCheY = posRatY
 # Posicion del queso en Casilla
-cheseX = 6
-cheseY = 6
+cheeseX = 9
+cheeseY = 9
 
-# Cargar Imagenes
-mouse = pg.image.load("IMG/mouse.png")
-chese = pg.image.load("IMG/cheese.png")
-
-# Matriz de 7x7 para Laberinto
-maze_array = [[1, 0, 1, 1, 1, 1, 0],
-              [1, 1, 1, 0, 0, 1, 0],
-              [0, 0, 0, 0, 1, 1, 0],
-              [1, 1, 1, 1, 1, 0, 0],
-              [1, 0, 0, 0, 0, 0, 1],
-              [1, 0, 1, 1, 1, 1, 1],
-              [1, 1, 1, 0, 1, 1, 1]]
+# Matriz de 7x7 para Laberinto (40 movimientos para llegar al queso)
+energy = 40
+maze_array = [[1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+              [0, 0, 1, 0, 0, 1, 0, 1, 1, 1],
+              [1, 1, 0, 1, 0, 1, 0, 0, 0, 1],
+              [1, 1, 0, 1, 0, 1, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+              [1, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1, 1, 1, 0, 1, 1]]
 
 
 def draw_text(text, size, pos_x, pos_y, surface):
@@ -50,14 +58,14 @@ def draw_text(text, size, pos_x, pos_y, surface):
     surface.blit(label, (pos_x, pos_y))
 
 
-def draw_mouse(surface, x, y):
-    surface.blit(mouse, (posRatX + size_cell * x, posRatY + size_cell * y))
+def draw_mouse(surface, mouse):
+    surface.blit(mousepng, (posRatX + size_cell * mouse.posX, posRatY + size_cell * mouse.posY))
 
     pg.display.update()
 
 
-def draw_chesse(surface, x, y):
-    surface.blit(chese, (posCheX + size_cell * x, posCheY + size_cell * y))
+def draw_cheese(surface, x, y):
+    surface.blit(cheesepng, (posCheX + size_cell * x, posCheY + size_cell * y))
     pg.display.update()
 
 
@@ -79,37 +87,46 @@ def draw_maze(surface):
     pg.display.update()
 
 
-def update_surface(surface, mouseX, mouseY):
+def update_surface(surface, mouse):
     surface.fill((228, 35, 34))
     draw_text('Trabajo 2', 80, 10, 10, surface)
-    draw_text('Grupo 4', 50, 20, 70, surface)
+    draw_text('Grupo 4', 50, 20, 60, surface)
+    draw_text('Hunger', 50, 530, 100, surface)
+    draw_text(str(mouse.energy), 50, 530, 130, surface)
     draw_maze(surface)
-    draw_chesse(surface, cheseX, cheseY)
-    draw_mouse(surface, mouseX, mouseY)
+    draw_cheese(surface, cheeseX, cheeseY)
+    draw_mouse(surface, mouse)
     pg.display.update()
 
 
 run = True
 victory = True
-
-update_surface(win, mouseX, mouseY)
+raton = Mouse('Juan', mouseX, mouseY, energy)
+update_surface(win, raton)
 while run:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             run = False
             pg.quit()
             sys.exit()
+        if raton.posX == cheeseX and raton.posY == cheeseY:
+            raton.energy = 999
+            raton.posX = 8
+            raton.posY = 9
+            update_surface(win, raton)
+            draw_text('Nice Cheese!', 58, 510, 560, win)
+            pg.display.flip()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:
-                mouseX = mouseX - 1
-                update_surface(win, mouseX, mouseY)
+                raton.move('LEFT')
+                update_surface(win, raton)
             if event.key == pg.K_UP:
-                mouseY = mouseY - 1
-                update_surface(win, mouseX, mouseY)
+                raton.move('UP')
+                update_surface(win, raton)
             if event.key == pg.K_RIGHT:
-                mouseX = mouseX + 1
-                update_surface(win, mouseX, mouseY)
+                raton.move('RIGHT')
+                update_surface(win, raton)
             if event.key == pg.K_DOWN:
-                mouseY = mouseY + 1
-                update_surface(win, mouseX, mouseY)
+                raton.move('DOWN')
+                update_surface(win, raton)
 pg.quit()
