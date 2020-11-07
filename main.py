@@ -40,7 +40,7 @@ cheeseY = 9
 
 # Matriz de 7x7 para Laberinto (40 movimientos para llegar al queso)
 energy = 40
-maze_array = [[1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+save_array = [[1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
               [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
               [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
               [0, 0, 1, 0, 0, 1, 0, 1, 1, 1],
@@ -50,6 +50,7 @@ maze_array = [[1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
               [1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
               [1, 0, 0, 0, 0, 0, 1, 1, 1, 1],
               [1, 1, 1, 1, 1, 1, 1, 0, 1, 1]]
+maze_array = save_array
 
 
 def draw_text(text, size, pos_x, pos_y, surface):
@@ -100,33 +101,44 @@ def update_surface(surface, mouse):
 
 
 run = True
-victory = True
 raton = Mouse('Juan', mouseX, mouseY, energy)
 update_surface(win, raton)
+tempX = 0
+tempY = 0
 while run:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             run = False
             pg.quit()
             sys.exit()
+
+        if event.type == pg.KEYDOWN:
+            tempX = raton.posX
+            tempY = raton.posY
+            if event.key == pg.K_LEFT:
+                raton.move(maze_array, 'LEFT')
+            if event.key == pg.K_UP:
+                raton.move(maze_array, 'UP')
+            if event.key == pg.K_RIGHT:
+                raton.move(maze_array, 'RIGHT')
+            if event.key == pg.K_DOWN:
+                raton.move(maze_array, 'DOWN')
+            update_surface(win, raton)
+            maze_array[tempY][tempX] = 0
+            update_surface(win, raton)
+
         if raton.posX == cheeseX and raton.posY == cheeseY:
             raton.energy = 999
-            raton.posX = 8
-            raton.posY = 9
             update_surface(win, raton)
             draw_text('Nice Cheese!', 58, 510, 560, win)
             pg.display.flip()
-        if event.type == pg.KEYDOWN:
-            if event.key == pg.K_LEFT:
-                raton.move('LEFT')
-                update_surface(win, raton)
-            if event.key == pg.K_UP:
-                raton.move('UP')
-                update_surface(win, raton)
-            if event.key == pg.K_RIGHT:
-                raton.move('RIGHT')
-                update_surface(win, raton)
-            if event.key == pg.K_DOWN:
-                raton.move('DOWN')
-                update_surface(win, raton)
+            pg.time.wait(5000)
+            run = False
+
+        if raton.energy == 0 or maze_array[raton.posY][raton.posX] == 0:
+            draw_text('RIP!', 58, 510, 560, win)
+            pg.display.flip()
+            pg.time.wait(5000)
+            run = False
+
 pg.quit()
