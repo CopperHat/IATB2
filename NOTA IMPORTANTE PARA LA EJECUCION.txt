@@ -1,0 +1,4 @@
+El programa se ejecutousando el IDE Pycharm.
+Utiliza un entorno de Python 3.8, debido a las compatibilidades con las librerias que se utilizaran.
+Debido a que la computadora donde se desarrollo no es de gama alta, se tuvo de desabilitar la impresion grafica de los resultados en las lineas 372 y 373,
+pero igual se pueden visualizar los resultados en la consola despues de un tiempo, aunque la ventana parezca no responder.
