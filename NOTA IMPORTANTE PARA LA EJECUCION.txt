@@ -1,4 +1,10 @@
-El programa se ejecutousando el IDE Pycharm.
+El programa se ejecuto usando el IDE Pycharm.
 Utiliza un entorno de Python 3.8, debido a las compatibilidades con las librerias que se utilizaran.
-Debido a que la computadora donde se desarrollo no es de gama alta, se tuvo de desabilitar la impresion grafica de los resultados en las lineas 372 y 373,
+Ademas, dentro del programa eseta la carpeta venv, que es el virtual enviroment donde se pudo ejecutar con normalidad el programa.
+Para su optima ejecucion, utilizar dicho entorno para probar e programa
+
+Debido a que la computadora donde se desarrollo no es de gama alta, no se pueden visualizar los resultados EPOCHS en la ventana,
 pero igual se pueden visualizar los resultados en la consola despues de un tiempo, aunque la ventana parezca no responder.
+
+Las lineas responsables de la impresion grafica de los resultados son las lineas 372 y 373, pero como estan entre los procesos,
+la ventana no llega a responder.
